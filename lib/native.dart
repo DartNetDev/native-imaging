@@ -3,6 +3,7 @@
 
 import 'src/ffi.dart';
 import 'dart:ffi';
+import 'dart:isolate';
 import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:ffi/ffi.dart' as ffi;
@@ -30,6 +31,17 @@ class Image {
 
   Image();
   Image._(this._inst);
+
+  static Future<int> _nativeAsync(void Function(int) op) async {
+    ImagingInitAsync(NativeApi.initializeApiDLData.cast());
+    final receivePort = ReceivePort();
+    try {
+      op(receivePort.sendPort.nativePort);
+      return await receivePort.first;
+    } finally {
+      receivePort.close();
+    }
+  }
 
   void loadRGBA(int width, int height, List<int> data) {
     assert(data.length == width * height * 4);
@@ -106,7 +118,7 @@ class Image {
     return Image._(out);
   }
 
-  Image resample(int width, int height, Transform mode) {
+  Image resampleSync(int width, int height, Transform mode) {
     final box = allocate<Float>(count: 4);
     try {
       box
@@ -118,12 +130,35 @@ class Image {
     }
   }
 
-  String toBlurhash(int xComponents, int yComponents) {
-    final ptr = blurHashForImage(_inst, xComponents, yComponents);
+  Future<Image> resample(int width, int height, Transform mode) async {
+    final box = allocate<Float>(count: 4);
     try {
-      return Utf8.fromUtf8(ptr);
+      box
+          .asTypedList(4)
+          .setAll(0, [0, 0, this.width.toDouble(), this.height.toDouble()]);
+      return Image._(Pointer.fromAddress(await _nativeAsync((port) =>
+          ImagingResampleAsync(_inst, width, height, mode.index, box, port))));
     } finally {
-      ffi.free(ptr);
+      ffi.free(box);
+    }
+  }
+
+  String toBlurhashSync(int xComponents, int yComponents) {
+    Pointer<Utf8> str = blurHashForImage(_inst, xComponents, yComponents);
+    try {
+      return Utf8.fromUtf8(str);
+    } finally {
+      ffi.free(str);
+    }
+  }
+
+  Future<String> toBlurhash(int xComponents, int yComponents) async {
+    final str = Pointer<Utf8>.fromAddress(await _nativeAsync((port) =>
+        blurHashForImageAsync(_inst, xComponents, yComponents, port)));
+    try {
+      return Utf8.fromUtf8(str);
+    } finally {
+      ffi.free(str);
     }
   }
 
@@ -132,13 +167,14 @@ class Image {
         'native_imaging loadEncoded is available on Web only');
   }
 
-  Future<Uint8List> toJpeg(int quality) {
+  Future<Uint8List> toJpeg(int quality) async {
     final buf = allocate<Pointer<Uint8>>();
     buf.value = nullptr;
     final size = allocate<IntPtr>();
     size.value = 0;
     try {
-      jpegEncode(_inst, quality, buf, size);
+      await _nativeAsync(
+          (port) => jpegEncodeAsync(_inst, quality, buf, size, port));
       final result = Uint8List.fromList(buf.value.asTypedList(size.value));
       return Future.sync(() => result);
     } finally {

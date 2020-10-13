@@ -270,7 +270,7 @@ ImagingDelete(Imaging im)
 
 #define IMAGING_PAGE_SIZE (4096)
 
-struct ImagingMemoryArena ImagingDefaultArena = {
+struct MemoryArena ImagingDefaultArena = {
     1,                   // alignment
     16*1024*1024,        // block_size
     0,                   // blocks_max

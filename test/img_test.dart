@@ -11,9 +11,9 @@ void main() async {
   test('thumbnail and blurhash', () async {
     final im = Image();
     im.loadRGBA(800, 600, Uint8List(800 * 600 * 4));
-    final im2 = im.resample(80, 60, Transform.lanczos);
+    final im2 = await im.resample(80, 60, Transform.lanczos);
     final blob = await im2.toJpeg(70);
-    final blurhash = im2.toBlurhash(4, 3);
+    final blurhash = await im2.toBlurhash(4, 3);
     im.free();
     im2.free();
 

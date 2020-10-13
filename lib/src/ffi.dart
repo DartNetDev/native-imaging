@@ -195,7 +195,27 @@ final blurHashForImage = libImaging.lookupFunction<
   Pointer<Utf8> Function(Pointer<NativeType> im, int xComponents, int yComponents)
 >('blurHashForImage');
 
+final ImagingInitAsync = libImaging.lookupFunction<
+  Void Function(Pointer<Uint8> data),
+  void Function(Pointer<Uint8> data)
+>('ImagingInitAsync');
+
+final ImagingResampleAsync = libImaging.lookupFunction<
+  Void Function(Pointer<NativeType> imIn, Int32 xsize, Int32 ysize, Int32 filter, Pointer<Float> box, Int64 port),
+  void Function(Pointer<NativeType> imIn, int xsize, int ysize, int filter, Pointer<Float> box, int port)
+>('ImagingResampleAsync');
+
+final blurHashForImageAsync = libImaging.lookupFunction<
+  Void Function(Pointer<NativeType> im, Int32 xComponents, Int32 yComponents, Int64 port),
+  void Function(Pointer<NativeType> im, int xComponents, int yComponents, int port)
+>('blurHashForImageAsync');
+
 final jpegEncode = libImaging.lookupFunction<
   Void Function(Pointer<NativeType> im, Int32 quality, Pointer<Pointer<Uint8>> data, Pointer<IntPtr> size),
   void Function(Pointer<NativeType> im, int quality, Pointer<Pointer<Uint8>> data, Pointer<IntPtr> size)
 >('jpegEncode');
+
+final jpegEncodeAsync = libImaging.lookupFunction<
+  Void Function(Pointer<NativeType> im, Int32 quality, Pointer<Pointer<Uint8>> data, Pointer<IntPtr> size, Int64 port),
+  void Function(Pointer<NativeType> im, int quality, Pointer<Pointer<Uint8>> data, Pointer<IntPtr> size, int port)
+>('jpegEncodeAsync');

@@ -164,7 +164,7 @@ struct ImagingPaletteInstance {
 
 };
 
-typedef struct ImagingMemoryArena {
+typedef struct MemoryArena {
     int alignment;        /* Alignment in memory of each line of an image */
     int block_size;       /* Preferred block size, bytes */
     int blocks_max;       /* Maximum number of cached blocks */
@@ -181,7 +181,7 @@ typedef struct ImagingMemoryArena {
 /* Objects */
 /* ------- */
 
-extern struct ImagingMemoryArena ImagingDefaultArena;
+extern struct MemoryArena ImagingDefaultArena;
 extern IMAGING_EXPORT int ImagingMemorySetBlocksMax(ImagingMemoryArena arena, int blocks_max);
 extern IMAGING_EXPORT void ImagingMemoryClearCache(ImagingMemoryArena arena, int new_size);
 
