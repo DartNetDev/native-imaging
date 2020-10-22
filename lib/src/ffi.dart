@@ -95,10 +95,24 @@ final ImagingBlend = libImaging.lookupFunction<
   Pointer<NativeType> Function(Pointer<NativeType> imIn1, Pointer<NativeType> imIn2, double alpha)
 >('ImagingBlend');
 
-final ImagingCopy = libImaging.lookupFunction<
-  Pointer<NativeType> Function(Pointer<NativeType> im),
+final _ImagingCopy = libImaging.lookup<NativeFunction<
   Pointer<NativeType> Function(Pointer<NativeType> im)
->('ImagingCopy');
+>>('ImagingCopy');
+
+final ImagingCopy = _ImagingCopy.asFunction<
+  Pointer<NativeType> Function(Pointer<NativeType> im)
+>();
+
+class ImagingCopyOp extends PtrOperation<NativeType> {
+  final _funcAddr = _ImagingCopy.address;
+  int im;
+  ImagingCopyOp(Pointer<NativeType> im)
+    : im = im.address;
+  Pointer<NativeType> Function(Pointer<NativeType> im) get func => Pointer<NativeFunction<
+      Pointer<NativeType> Function(Pointer<NativeType> im)
+    >>.fromAddress(_funcAddr).asFunction();
+  int run() => func(Pointer.fromAddress(im)).address;
+}
 
 final ImagingFlipLeftRight = libImaging.lookupFunction<
   Pointer<NativeType> Function(Pointer<NativeType> imOut, Pointer<NativeType> imIn),
@@ -140,10 +154,32 @@ final ImagingTransverse = libImaging.lookupFunction<
   Pointer<NativeType> Function(Pointer<NativeType> imOut, Pointer<NativeType> imIn)
 >('ImagingTransverse');
 
-final ImagingResample = libImaging.lookupFunction<
-  Pointer<NativeType> Function(Pointer<NativeType> imIn, Int32 xsize, Int32 ysize, Int32 filter, Pointer<Float> box),
+final _ImagingResample = libImaging.lookup<NativeFunction<
+  Pointer<NativeType> Function(Pointer<NativeType> imIn, Int32 xsize, Int32 ysize, Int32 filter, Pointer<Float> box)
+>>('ImagingResample');
+
+final ImagingResample = _ImagingResample.asFunction<
   Pointer<NativeType> Function(Pointer<NativeType> imIn, int xsize, int ysize, int filter, Pointer<Float> box)
->('ImagingResample');
+>();
+
+class ImagingResampleOp extends PtrOperation<NativeType> {
+  final _funcAddr = _ImagingResample.address;
+  int imIn;
+  int xsize;
+  int ysize;
+  int filter;
+  int box;
+  ImagingResampleOp(Pointer<NativeType> imIn, int xsize, int ysize, int filter, Pointer<Float> box)
+    : imIn = imIn.address
+    , xsize = xsize
+    , ysize = ysize
+    , filter = filter
+    , box = box.address;
+  Pointer<NativeType> Function(Pointer<NativeType> imIn, int xsize, int ysize, int filter, Pointer<Float> box) get func => Pointer<NativeFunction<
+      Pointer<NativeType> Function(Pointer<NativeType> imIn, Int32 xsize, Int32 ysize, Int32 filter, Pointer<Float> box)
+    >>.fromAddress(_funcAddr).asFunction();
+  int run() => func(Pointer.fromAddress(imIn), xsize, ysize, filter, Pointer.fromAddress(box)).address;
+}
 
 final ImagingTransform = libImaging.lookupFunction<
   Pointer<NativeType> Function(Pointer<NativeType> imOut, Pointer<NativeType> imIn, Int32 method, Int32 x0, Int32 y0, Int32 x1, Int32 y1, Pointer<Double> a, Int32 filter, Int32 fill),
@@ -190,12 +226,50 @@ final imageBlock = libImaging.lookupFunction<
   Pointer<Uint8> Function(Pointer<NativeType> im)
 >('imageBlock');
 
-final blurHashForImage = libImaging.lookupFunction<
-  Pointer<Utf8> Function(Pointer<NativeType> im, Int32 xComponents, Int32 yComponents),
-  Pointer<Utf8> Function(Pointer<NativeType> im, int xComponents, int yComponents)
->('blurHashForImage');
+final _blurHashForImage = libImaging.lookup<NativeFunction<
+  Pointer<Utf8> Function(Pointer<NativeType> im, Int32 xComponents, Int32 yComponents)
+>>('blurHashForImage');
 
-final jpegEncode = libImaging.lookupFunction<
-  Void Function(Pointer<NativeType> im, Int32 quality, Pointer<Pointer<Uint8>> data, Pointer<IntPtr> size),
+final blurHashForImage = _blurHashForImage.asFunction<
+  Pointer<Utf8> Function(Pointer<NativeType> im, int xComponents, int yComponents)
+>();
+
+class blurHashForImageOp extends PtrOperation<Utf8> {
+  final _funcAddr = _blurHashForImage.address;
+  int im;
+  int xComponents;
+  int yComponents;
+  blurHashForImageOp(Pointer<NativeType> im, int xComponents, int yComponents)
+    : im = im.address
+    , xComponents = xComponents
+    , yComponents = yComponents;
+  Pointer<Utf8> Function(Pointer<NativeType> im, int xComponents, int yComponents) get func => Pointer<NativeFunction<
+      Pointer<Utf8> Function(Pointer<NativeType> im, Int32 xComponents, Int32 yComponents)
+    >>.fromAddress(_funcAddr).asFunction();
+  int run() => func(Pointer.fromAddress(im), xComponents, yComponents).address;
+}
+
+final _jpegEncode = libImaging.lookup<NativeFunction<
+  Void Function(Pointer<NativeType> im, Int32 quality, Pointer<Pointer<Uint8>> data, Pointer<IntPtr> size)
+>>('jpegEncode');
+
+final jpegEncode = _jpegEncode.asFunction<
   void Function(Pointer<NativeType> im, int quality, Pointer<Pointer<Uint8>> data, Pointer<IntPtr> size)
->('jpegEncode');
+>();
+
+class jpegEncodeOp extends Operation<void> {
+  final _funcAddr = _jpegEncode.address;
+  int im;
+  int quality;
+  int data;
+  int size;
+  jpegEncodeOp(Pointer<NativeType> im, int quality, Pointer<Pointer<Uint8>> data, Pointer<IntPtr> size)
+    : im = im.address
+    , quality = quality
+    , data = data.address
+    , size = size.address;
+  void Function(Pointer<NativeType> im, int quality, Pointer<Pointer<Uint8>> data, Pointer<IntPtr> size) get func => Pointer<NativeFunction<
+      Void Function(Pointer<NativeType> im, Int32 quality, Pointer<Pointer<Uint8>> data, Pointer<IntPtr> size)
+    >>.fromAddress(_funcAddr).asFunction();
+  void run() => func(Pointer.fromAddress(im), quality, Pointer.fromAddress(data), Pointer.fromAddress(size));
+}

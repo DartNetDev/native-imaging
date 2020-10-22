@@ -50,8 +50,8 @@ class Image {
   int get linesize => imageLinesize(_inst);
   Pointer<Uint8> get block => imageBlock(_inst);
 
-  Image copy() {
-    return Image._(ImagingCopy(_inst));
+  Future<Image> copy() async {
+    return Image._(await ImagingCopyOp(_inst).exec());
   }
 
   Image blend(Image other, double alpha) {
@@ -106,20 +106,23 @@ class Image {
     return Image._(out);
   }
 
-  Image resample(int width, int height, Transform mode) {
+  Future<Image> resample(int width, int height, Transform mode) async {
     final box = allocate<Float>(count: 4);
     try {
       box
           .asTypedList(4)
           .setAll(0, [0, 0, this.width.toDouble(), this.height.toDouble()]);
-      return Image._(ImagingResample(_inst, width, height, mode.index, box));
+      return Image._(
+          await ImagingResampleOp(_inst, width, height, mode.index, box)
+              .exec());
     } finally {
       ffi.free(box);
     }
   }
 
-  String toBlurhash(int xComponents, int yComponents) {
-    final ptr = blurHashForImage(_inst, xComponents, yComponents);
+  Future<String> toBlurhash(int xComponents, int yComponents) async {
+    final ptr =
+        await blurHashForImageOp(_inst, xComponents, yComponents).exec();
     try {
       return Utf8.fromUtf8(ptr);
     } finally {
@@ -132,13 +135,13 @@ class Image {
         'native_imaging loadEncoded is available on Web only');
   }
 
-  Future<Uint8List> toJpeg(int quality) {
+  Future<Uint8List> toJpeg(int quality) async {
     final buf = allocate<Pointer<Uint8>>();
     buf.value = nullptr;
     final size = allocate<IntPtr>();
     size.value = 0;
     try {
-      jpegEncode(_inst, quality, buf, size);
+      await jpegEncodeOp(_inst, quality, buf, size).exec();
       final result = Uint8List.fromList(buf.value.asTypedList(size.value));
       return Future.sync(() => result);
     } finally {

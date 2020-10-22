@@ -22,13 +22,13 @@ void main() async {
       w = max * width ~/ height;
     }
 
-    final scaledImg = nativeImg.resample(w, h, native.Transform.lanczos);
+    final scaledImg = await nativeImg.resample(w, h, native.Transform.lanczos);
     nativeImg.free();
     nativeImg = scaledImg;
   }
 
   final jpegBytes = await nativeImg.toJpeg(75);
-  final blurhash = nativeImg.toBlurhash(3, 3);
+  final blurhash = await nativeImg.toBlurhash(3, 3);
   nativeImg.free();
 
   print('Blurhash: ${blurhash}');

@@ -4,4 +4,8 @@
 
 cd "$(dirname "$0")"/..
 codegen/autojs.jq < lib/native.dart > lib/js.dart
-printf '#include "%s"\n' ios/src/extra.h | gcc -DJPEG_ENCODE -I ios/src -I ios/src/blurhash -I codegen -E - | codegen/autoffi.jq > lib/src/ffi.dart
+
+printf '#include "%s"\n' ios/src/extra.h \
+| gcc -DJPEG_ENCODE -I ios/src -I ios/src/blurhash -I codegen -E - \
+| codegen/autoffi.jq --argfile async_functions codegen/async_functions.json \
+> lib/src/ffi.dart
