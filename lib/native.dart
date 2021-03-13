@@ -33,7 +33,7 @@ class Image {
 
   void loadRGBA(int width, int height, List<int> data) {
     assert(data.length == width * height * 4);
-    final mem = allocate<Uint8>(count: data.length);
+    final mem = malloc.call<Uint8>(data.length);
     mem.asTypedList(data.length).setAll(0, data);
     _inst = imageFromRGBA(width, height, mem);
   }
@@ -44,7 +44,7 @@ class Image {
   }
 
   Pointer<Utf8> get _mode => imageMode(_inst);
-  String get mode => Utf8.fromUtf8(_mode);
+  String get mode => _mode.toDartString();
   int get width => imageWidth(_inst);
   int get height => imageHeight(_inst);
   int get linesize => imageLinesize(_inst);
@@ -107,23 +107,23 @@ class Image {
   }
 
   Image resample(int width, int height, Transform mode) {
-    final box = allocate<Float>(count: 4);
+    final box = malloc.call<Float>(4);
     try {
       box
           .asTypedList(4)
           .setAll(0, [0, 0, this.width.toDouble(), this.height.toDouble()]);
       return Image._(ImagingResample(_inst, width, height, mode.index, box));
     } finally {
-      ffi.free(box);
+      malloc.free(box);
     }
   }
 
   String toBlurhash(int xComponents, int yComponents) {
     final ptr = blurHashForImage(_inst, xComponents, yComponents);
     try {
-      return Utf8.fromUtf8(ptr);
+      return ptr.toDartString();
     } finally {
-      ffi.free(ptr);
+      malloc.free(ptr);
     }
   }
 
@@ -133,18 +133,18 @@ class Image {
   }
 
   Future<Uint8List> toJpeg(int quality) {
-    final buf = allocate<Pointer<Uint8>>();
+    final buf = malloc.call<Pointer<Uint8>>();
     buf.value = nullptr;
-    final size = allocate<IntPtr>();
+    final size = malloc.call<IntPtr>();
     size.value = 0;
     try {
       jpegEncode(_inst, quality, buf, size);
       final result = Uint8List.fromList(buf.value.asTypedList(size.value));
       return Future.sync(() => result);
     } finally {
-      if (buf.value != nullptr) ffi.free(buf.value);
-      ffi.free(size);
-      ffi.free(buf);
+      if (buf.value != nullptr) malloc.free(buf.value);
+      malloc.free(size);
+      malloc.free(buf);
     }
   }
 }
